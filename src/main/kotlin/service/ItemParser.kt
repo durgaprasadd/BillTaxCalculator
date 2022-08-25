@@ -9,11 +9,13 @@ import model.Other
 
 class ItemParser {
     fun parse(description: String): Item {
-        val quantity = description.takeWhile { it.isDigit() }
+        val words = description.split(" ")
+        val quantity = words.first()
         if (!verifyQuantity(quantity)) {
             throw InvalidItemDescription("invalid quantity")
         }
-        val (name, price) = description.substring(quantity.length + 1).split(" at ")
+        val price = words.last()
+        val name = words.subList(1, words.size-2).joinToString(" ")
         if (!verifyPrice(price.trim())) {
             throw InvalidItemDescription("invalid price")
         }
@@ -49,7 +51,8 @@ class ItemParser {
     }
 
     private fun verifyQuantity(quantity: String): Boolean {
-        return quantity.isNotEmpty() && quantity.toInt() > 0
+        val parsedQuantity = quantity.toIntOrNull()
+        return  parsedQuantity != null && parsedQuantity > 0
     }
 
     private fun verifyPrice(price: String): Boolean {
