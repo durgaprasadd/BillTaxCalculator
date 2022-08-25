@@ -1,19 +1,22 @@
 package service
 
+import model.ImportTaxRule
 import model.Item
-import model.Other
+import model.SalesTaxRule
 
 class TaxCalculator(
     private val items: List<Item>,
-    private val printer: (input:String) -> Unit = ::println
+    private val printer: (input: String) -> Unit = ::println
 ) {
 
     fun printReceipt() {
         var totalSalesTax = 0F
         var total = 0F
+        val salesTaxRule = SalesTaxRule()
+        val importTaxRule = ImportTaxRule()
         for (item in items) {
-            val salesTax = calculateSalesTax(item)
-            val importTax = calculateImportTax(item)
+            val salesTax = salesTaxRule.applyTax(item)
+            val importTax = importTaxRule.applyTax(item)
             val price = item.price + salesTax + importTax
             printer("${item.quantity} ${item.name}: $price")
             totalSalesTax += salesTax
@@ -21,19 +24,5 @@ class TaxCalculator(
         }
         printer("Sales Tax: $totalSalesTax")
         printer("Total: $total")
-    }
-
-    private fun calculateSalesTax(item: Item): Float {
-        return when (item) {
-            is Other -> item.price * 0.1F
-            else -> 0F
-        }
-    }
-
-    private fun calculateImportTax(item: Item): Float {
-        return when (item.imported) {
-            true -> item.price * 0.05F
-            false -> 0F
-        }
     }
 }
